@@ -1,0 +1,202 @@
+---
+default-executor: jmeter
+reporting:
+  - module: final-stats
+  - module: console
+
+execution:
+  - throughput: 300
+    concurrency: 50
+    ramp-up: 10s
+    hold-for: 20s
+    scenario: product
+  - throughput: 100
+    concurrency: 20
+    ramp-up: 5s
+    hold-for: 20s
+    scenario: order-pay
+  - throughput: 100
+    concurrency: 20
+    ramp-up: 5s
+    hold-for: 20s
+    scenario: order-cancel
+
+scenarios:
+  product:
+    think-time: 100ms
+    requests:
+      - url: http://localhost:8080/api/v1/products
+        label: create_product
+        method: POST
+        body: |-
+          {
+            "code": "${__RandomString(15,abcdefghijklmnopqrstuvwxyz,)}",
+            "name": "${__RandomString(150,abcdefghijklmnopqrstuvwxyz,)}",
+            "stockQuantity": ${__Random(1,100)},
+            "pricePerUnit": ${__jexl3(${__Random(1,1000)}/100.0)}
+          }
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        extract-jsonpath:
+          code: '$.code'
+          name: '$.name'
+          stockQuantity: '$.stockQuantity'
+          pricePerUnit: '$.pricePerUnit'
+      - url: http://localhost:8080/api/v1/products/${code}
+        label: get_product
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        assert-jsonpath:
+          - jsonpath: '$.code'
+            expected-value: ${code}
+          - jsonpath: '$.name'
+            expected-value: ${name}
+          - jsonpath: '$.stockQuantity'
+            expected-value: ${stockQuantity}
+          - jsonpath: '$.pricePerUnit'
+            expected-value: ${pricePerUnit}
+      - url: http://localhost:8080/api/v1/products/${code}
+        label: update_product
+        method: PUT
+        body: |-
+          {
+            "name": "${__RandomString(150,abcdefghijklmnopqrstuvwxyz,)}",
+            "stockQuantity": ${__Random(1,100)},
+            "pricePerUnit": ${__jexl3(${__Random(1,1000)}/100.0)}
+          }
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        extract-jsonpath:
+          code: '$.code'
+          name: '$.name'
+          stockQuantity: '$.stockQuantity'
+          pricePerUnit: '$.pricePerUnit'
+      - url: http://localhost:8080/api/v1/products/${code}
+        label: get_product
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        assert-jsonpath:
+          - jsonpath: '$.code'
+            expected-value: ${code}
+          - jsonpath: '$.name'
+            expected-value: ${name}
+          - jsonpath: '$.stockQuantity'
+            expected-value: ${stockQuantity}
+          - jsonpath: '$.pricePerUnit'
+            expected-value: ${pricePerUnit}
+      - url: http://localhost:8080/api/v1/products/${code}
+        label: delete_product
+        method: DELETE
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+      - url: http://localhost:8080/api/v1/products/${code}
+        label: get_deleted_product_fails
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        assert:
+          - contains:
+            - 404
+            subject: http-code
+            assume-success: true
+
+  order-pay:
+    think-time: 100ms
+    requests:
+      - url: http://localhost:8080/api/v1/products
+        label: create_product_for_order
+        method: POST
+        body: |-
+          {
+            "code": "${__RandomString(15,abcdefghijklmnopqrstuvwxyz,)}",
+            "name": "${__RandomString(50,abcdefghijklmnopqrstuvwxyz,)}",
+            "stockQuantity": 100,
+            "pricePerUnit": 10.0
+          }
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        extract-jsonpath:
+          product_code: '$.code'
+      - url: http://localhost:8080/api/v1/orders
+        label: create_order
+        method: POST
+        body: |-
+          {
+            "items": [
+              {
+                "productCode": "${product_code}",
+                "quantity": 2
+              }
+            ]
+          }
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        assert-jsonpath:
+          - jsonpath: '$.status'
+            expected-value: PENDING
+        extract-jsonpath:
+          order_code: '$.code'
+      - url: http://localhost:8080/api/v1/orders/${order_code}/pay
+        label: pay_order
+        method: POST
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        assert-jsonpath:
+          - jsonpath: '$.status'
+            expected-value: PAID
+
+  order-cancel:
+    think-time: 100ms
+    requests:
+      - url: http://localhost:8080/api/v1/products
+        label: create_product_for_order
+        method: POST
+        body: |-
+          {
+            "code": "${__RandomString(15,abcdefghijklmnopqrstuvwxyz,)}",
+            "name": "${__RandomString(50,abcdefghijklmnopqrstuvwxyz,)}",
+            "stockQuantity": 100,
+            "pricePerUnit": 10.0
+          }
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        extract-jsonpath:
+          product_code: '$.code'
+      - url: http://localhost:8080/api/v1/orders
+        label: create_order
+        method: POST
+        body: |-
+          {
+            "items": [
+              {
+                "productCode": "${product_code}",
+                "quantity": 2
+              }
+            ]
+          }
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        assert-jsonpath:
+          - jsonpath: '$.status'
+            expected-value: PENDING
+        extract-jsonpath:
+          order_code: '$.code'
+      - url: http://localhost:8080/api/v1/orders/${order_code}/cancel
+        label: cancel_order
+        method: POST
+        headers:
+          Content-Type: application/json
+          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+        assert-jsonpath:
+          - jsonpath: '$.status'
+            expected-value: CANCELED
