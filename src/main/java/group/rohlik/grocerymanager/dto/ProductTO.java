@@ -3,6 +3,8 @@ package group.rohlik.grocerymanager.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +14,8 @@ import java.math.BigDecimal;
  * @author Tomas Kramec
  */
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @JsonView(View.Read.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)

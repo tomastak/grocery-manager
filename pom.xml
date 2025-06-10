@@ -13,19 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>grocery-manage</name>
     <description>Grocery management service</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+
     <properties>
         <java.version>21</java.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
@@ -36,6 +24,7 @@
         <springdoc-openapi.version>2.6.0</springdoc-openapi.version>
         <caffeine.version>3.1.8</caffeine.version>
         <junit-platform.version>1.10.2</junit-platform.version>
+        <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -216,6 +205,24 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
+                <configuration>
+                    <from>
+                        <image>eclipse-temurin:21-jre</image>
+                    </from>
+                    <to>
+                        <image>grocery-manager:latest</image>
+                    </to>
+                    <container>
+                        <ports>
+                            <port>8080</port>
+                        </ports>
+                    </container>
+                </configuration>
             </plugin>
         </plugins>
     </build>

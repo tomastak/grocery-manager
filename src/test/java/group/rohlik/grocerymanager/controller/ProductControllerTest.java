@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -104,6 +105,7 @@ class ProductControllerTest {
         ErrorTO errorTO = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
         });
 
+        assertThat(errorTO.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(errorTO.getError()).contains("Validation failed");
         assertThat(errorTO.getMessage()).contains("Invalid input parameters");
         assertThat(errorTO.getTimestamp()).isNotNull();
@@ -139,6 +141,7 @@ class ProductControllerTest {
         ErrorTO errorTO = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
         });
 
+        assertThat(errorTO.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(errorTO.getError()).contains("Validation failed");
         assertThat(errorTO.getMessage()).contains("Invalid input parameters");
         assertThat(errorTO.getTimestamp()).isNotNull();
@@ -164,14 +167,24 @@ class ProductControllerTest {
         when(productService.createProduct(any(ProductTO.class)))
                 .thenThrow(new ProductAlreadyExistsException("Product with code already exists"));
 
-        mockMvc.perform(post(BASE_URL)
+        MvcResult result = mockMvc.perform(post(BASE_URL)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(productTO)))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         verify(productService, times(1)).createProduct(eq(productTO));
+
+        ErrorTO errorTO = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+
+        assertThat(errorTO.getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+        assertThat(errorTO.getError()).contains("Product already exists");
+        assertThat(errorTO.getMessage()).contains("Product with code already exists");
+        assertThat(errorTO.getTimestamp()).isNotNull();
     }
 
     @Test
@@ -263,14 +276,24 @@ class ProductControllerTest {
         when(productService.updateProduct(any(ProductTO.class)))
                 .thenThrow(new ProductNotFoundException("Product not found"));
 
-        mockMvc.perform(put(BASE_URL + "/" + productTO.getCode())
+        MvcResult result = mockMvc.perform(put(BASE_URL + "/" + productTO.getCode())
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(productTO)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         verify(productService, times(1)).updateProduct(eq(productTO));
+
+        ErrorTO errorTO = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+
+        assertThat(errorTO.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(errorTO.getError()).contains("Product not found");
+        assertThat(errorTO.getMessage()).contains("Product not found");
+        assertThat(errorTO.getTimestamp()).isNotNull();
     }
 
     @Test
@@ -292,6 +315,7 @@ class ProductControllerTest {
         ErrorTO errorTO = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
         });
 
+        assertThat(errorTO.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(errorTO.getError()).contains("Validation failed");
         assertThat(errorTO.getMessage()).contains("Invalid input parameters");
         assertThat(errorTO.getTimestamp()).isNotNull();
@@ -323,14 +347,25 @@ class ProductControllerTest {
     void deleteProduct_ShouldReturnNotFound_WhenProductDoesNotExist() throws Exception {
         String productCode = RandomStringUtils.randomAlphanumeric(10);
 
-        doThrow(ProductNotFoundException.class).when(productService).deleteProduct(productCode);
+        doThrow(new ProductNotFoundException("Product not found with code: " + productCode))
+                .when(productService).deleteProduct(productCode);
 
-        mockMvc.perform(delete(BASE_URL + "/" + productCode)
+        MvcResult result = mockMvc.perform(delete(BASE_URL + "/" + productCode)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         verify(productService, times(1)).deleteProduct(productCode);
+
+        ErrorTO errorTO = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+
+        assertThat(errorTO.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(errorTO.getError()).contains("Product not found");
+        assertThat(errorTO.getMessage()).contains("Product not found with code: " + productCode);
+        assertThat(errorTO.getTimestamp()).isNotNull();
     }
 
     @Test
@@ -338,14 +373,25 @@ class ProductControllerTest {
     void deleteProduct_ShouldReturnConflict_WhenProductHasActiveOrders() throws Exception {
         String productCode = RandomStringUtils.randomAlphanumeric(10);
 
-        doThrow(ProductDeletionException.class).when(productService).deleteProduct(productCode);
+        doThrow(new ProductDeletionException("Cannot delete product")).when(productService).deleteProduct(productCode);
 
-        mockMvc.perform(delete(BASE_URL + "/" + productCode)
+        MvcResult result = mockMvc.perform(delete(BASE_URL + "/" + productCode)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         verify(productService, times(1)).deleteProduct(productCode);
+
+
+        ErrorTO errorTO = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+
+        assertThat(errorTO.getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+        assertThat(errorTO.getError()).contains("Product deletion error");
+        assertThat(errorTO.getMessage()).contains("Cannot delete product");
+        assertThat(errorTO.getTimestamp()).isNotNull();
     }
 
     @Test
@@ -384,13 +430,23 @@ class ProductControllerTest {
         String productCode = RandomStringUtils.randomAlphanumeric(10);
 
         when(productService.hasProductActiveOrders(productCode))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+                .thenThrow(new ProductNotFoundException("Product not found with code: " + productCode));
 
-        mockMvc.perform(get(BASE_URL + "/" + productCode + "/has-active-orders")
+        MvcResult result = mockMvc.perform(get(BASE_URL + "/" + productCode + "/has-active-orders")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         verify(productService, times(1)).hasProductActiveOrders(productCode);
+
+        ErrorTO errorTO = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+
+        assertThat(errorTO.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(errorTO.getError()).contains("Product not found");
+        assertThat(errorTO.getMessage()).contains("Product not found with code: " + productCode);
+        assertThat(errorTO.getTimestamp()).isNotNull();
     }
 
     @Test
@@ -429,12 +485,22 @@ class ProductControllerTest {
         String productCode = RandomStringUtils.randomAlphanumeric(10);
 
         when(productService.hasProductFinishedOrders(productCode))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+                .thenThrow(new ProductNotFoundException("Product not found with code: " + productCode));
 
-        mockMvc.perform(get(BASE_URL + "/" + productCode + "/has-finished-orders")
+        MvcResult result = mockMvc.perform(get(BASE_URL + "/" + productCode + "/has-finished-orders")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         verify(productService, times(1)).hasProductFinishedOrders(productCode);
+
+        ErrorTO errorTO = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+
+        assertThat(errorTO.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(errorTO.getError()).contains("Product not found");
+        assertThat(errorTO.getMessage()).contains("Product not found with code: " + productCode);
+        assertThat(errorTO.getTimestamp()).isNotNull();
     }
 }

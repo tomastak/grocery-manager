@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025_06_07
+      author: Tomas Kramec
+      context: devel
+      changes:
+#        - sqlFile:
+#            path: ../sql/product_init_data.sql
+#            relativeToChangelogFile: true
+#            encoding: utf8
+#            endDelimiter: \n\/
+        - loadData:
+            file: ../csv/product_data.csv
+            relativeToChangelogFile: true
+            tableName: GM_PRODUCT
+            encoding: utf8
+            separator: ','
+            columns:
+              - column:
+                  name: ID
+                  type: bigint
+              - column:
+                  name: CODE
+                  type: varchar(20)
+              - column:
+                  name: NAME
+                  type: varchar2(255)
+              - column:
+                  name: STOCK_QUANTITY
+                  type: integer
+              - column:
+                  name: UNIT_PRICE
+                  type: currency
+              - column:
+                  name: CREATED_BY
+                  type: varchar(30)
+                  value: 'init_data'
+              - column:
+                  name: UPDATED_BY
+                  type: varchar(30)
+                  value: 'init_data'
+  - changeSet:
+      id: 2025_06_09_recreate_seq
+      author: Tomas Kramec
+      context: devel
+      changes:
+        - sql:
+            sql: |
+              DROP SEQUENCE IF EXISTS SEQ_GM_PRODUCT;
+              CREATE SEQUENCE SEQ_GM_PRODUCT START WITH (
+                SELECT COALESCE(MAX(ID), 0) + 1 FROM GM_PRODUCT
+              ) INCREMENT BY 50 CACHE 50;
+              SELECT (NEXT VALUE FOR SEQ_GM_PRODUCT) FROM DUAL;

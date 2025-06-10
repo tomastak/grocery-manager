@@ -1,0 +1,218 @@
+.abstractEntityColumns:
+  - &creationDate
+    column:
+      name: CREATION_DATE
+      type: datetime
+      defaultValueComputed: CURRENT_TIMESTAMP
+  - &createdBy
+    column:
+      name: CREATED_BY
+      type: varchar(30)
+  - &updateDate
+    column:
+      name: UPDATE_DATE
+      type: datetime
+      defaultValueComputed: CURRENT_TIMESTAMP
+  - &updatedBy
+    column:
+      name: UPDATED_BY
+      type: varchar(30)
+  - &version
+    column:
+      name: VERSION
+      type: bigint
+  - &archived
+    column:
+      name: ARCHIVED
+      type: boolean
+      constraints:
+        nullable: false
+      defaultValueBoolean: false
+databaseChangeLog:
+  - property:
+      dbms: h2
+      name: uuid_function
+      value: random_uuid()
+  - changeSet:
+      id: 2025_06_07
+      author: Tomas Kramec
+      changes:
+        - createTable:
+            tableName: GM_PRODUCT
+            columns:
+              - column:
+                  name: ID
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: PK_GM_PRODUCT_ID
+                    validatePrimaryKey: true
+                    nullable: false
+              - column:
+                  name: CODE
+                  type: varchar(50)
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: UQ_GM_PRODUCT_CODE
+                    validateUnique: true
+                    nullable: false
+              - column:
+                  name: NAME
+                  type: varchar2(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: STOCK_QUANTITY
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: UNIT_PRICE
+                  type: currency
+                  constraints:
+                    nullable: false
+              - *version
+              - *archived
+              - *creationDate
+              - *createdBy
+              - *updateDate
+              - *updatedBy
+        - createTable:
+            tableName: GM_ORDER
+            columns:
+              - column:
+                  name: ID
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: PK_GM_ORDER_ID
+                    validatePrimaryKey: true
+                    nullable: false
+              - column:
+                  name: CODE
+                  type: UUID
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: UQ_GM_ORDER_CODE
+                    validateUnique: true
+                    nullable: false
+                  defaultValueComputed: '${uuid_function}'
+              - column:
+                  name: STATUS
+                  type: varchar(20)
+                  constraints:
+                      nullable: false
+              - column:
+                  name: TOTAL_AMOUNT
+                  type: currency
+                  constraints:
+                    nullable: false
+              - column:
+                  name: EXPIRES_AT
+                  type: datetime
+                  constraints:
+                    nullable: false
+              - *version
+              - *creationDate
+              - *createdBy
+              - *updateDate
+              - *updatedBy
+        - createTable:
+            tableName: GM_ORDER_ITEM
+            columns:
+              - column:
+                  name: ID
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: PK_GM_ORDER_ITEM_ID
+                    validatePrimaryKey: true
+                    nullable: false
+              - column:
+                  name: CODE
+                  type: UUID
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: UQ_GM_ORDER_ITEM_CODE
+                    validateUnique: true
+                    nullable: false
+                  defaultValueComputed: '${uuid_function}'
+              - column:
+                    name: ORDER_ID
+                    type: bigint
+                    constraints:
+                        foreignKeyName: FK_GM_ORDER_ITEM_ORDER
+                        references: GM_ORDER(ID)
+                        validateForeignKey: true
+                        nullable: false
+              - column:
+                    name: PRODUCT_ID
+                    type: bigint
+                    constraints:
+                        foreignKeyName: FK_GM_ORDER_ITEM_PRODUCT
+                        references: GM_PRODUCT(ID)
+                        validateForeignKey: true
+                        nullable: false
+              - column:
+                    name: QUANTITY
+                    type: integer
+                    constraints:
+                        nullable: false
+              - column:
+                    name: UNIT_PRICE
+                    type: currency
+                    constraints:
+                        nullable: false
+              - column:
+                  name: TOTAL_PRICE
+                  type: currency
+                  constraints:
+                    nullable: false
+              - *version
+              - *creationDate
+              - *createdBy
+              - *updateDate
+              - *updatedBy
+        - createIndex:
+            indexName: IDX_GM_ORDER_EXPIRES_AT_STATUS
+            tableName: GM_ORDER
+            columns:
+              - column:
+                  name: EXPIRES_AT
+              - column:
+                  name: STATUS
+        - createIndex:
+            indexName: IDX_GM_ORDER_STATUS
+            tableName: GM_ORDER
+            columns:
+              - column:
+                  name: STATUS
+        - createIndex:
+            indexName: IDX_GM_PRODUCT_ARCHIVED
+            tableName: GM_PRODUCT
+            columns:
+              - column:
+                  name: ARCHIVED
+        - createIndex:
+            indexName: IDX_GM_PRODUCT_CODE_ARCHIVED
+            tableName: GM_PRODUCT
+            columns:
+              - column:
+                  name: CODE
+              - column:
+                  name: ARCHIVED
+        - createSequence:
+            sequenceName: SEQ_GM_ORDER
+            startValue: 1
+            incrementBy: 50
+            cacheSize: 50
+        - createSequence:
+            sequenceName: SEQ_GM_ORDER_ITEM
+            startValue: 1
+            incrementBy: 50
+            cacheSize: 50
+        - createSequence:
+            sequenceName: SEQ_GM_PRODUCT
+            startValue: 1
+            incrementBy: 50
+            cacheSize: 50

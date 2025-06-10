@@ -26,8 +26,7 @@ public class OrderItemTO {
     @JsonView(View.Read.class)
     private UUID code;
 
-    @NotNull(message = "Product code is required", groups = View.Create.class)
-    @NotBlank(message = "Product code cannot be blank", groups = View.Create.class)
+    @NotBlank(message = "Product code is required", groups = View.Create.class)
     @JsonView(View.Create.class)
     private String productCode;
 

@@ -15,7 +15,6 @@ import group.rohlik.grocerymanager.repository.IExpireOrderRepository;
 import group.rohlik.grocerymanager.repository.IOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -44,7 +43,6 @@ public class OrderService implements IOrderService {
     private final IOrderRepository orderRepository;
     private final ProductService productService;
     private final IOrderMapper orderMapper;
-    private final ApplicationEventPublisher eventPublisher;
     private final IExpireOrderRepository expireOrderRepository;
     private final ExpireOrderScheduleProperties expireOrderScheduleProperties;
 

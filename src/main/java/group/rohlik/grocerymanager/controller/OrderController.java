@@ -49,10 +49,6 @@ public class OrderController {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "404",
                             description = "Not Found: Product from order not found"
-                    ),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "409",
-                            description = "Conflict: Product with the same code already exists"
                     )
             }
     )
