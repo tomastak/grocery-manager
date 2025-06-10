@@ -78,11 +78,16 @@ public class ProductController {
                             description = "Product created successfully"
                     ),
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request: Invalid product data"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "409",
                             description = "Conflict: Product with the same code already exists"
                     )
             }
     )
+    @Validated(View.Create.class)
     public ResponseEntity<ProductTO> createProduct(@JsonView(View.Create.class) @Valid @RequestBody ProductTO productTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.createProduct(productTO));
@@ -98,11 +103,16 @@ public class ProductController {
                             description = "Product updated successfully"
                     ),
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request: Invalid product data"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "404",
                             description = "Product not found"
                     )
             }
     )
+    @Validated(View.Update.class)
     public ResponseEntity<ProductTO> updateProduct(@PathVariable String code,
                                                    @JsonView(View.Update.class) @Valid @RequestBody ProductTO productTO) {
         productTO.setCode(code);
@@ -131,6 +141,42 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable String code) {
         productService.deleteProduct(code);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{code}/has-active-orders")
+    @Operation(summary = "Check if product has active orders", description = "Check if a product has any active orders. " +
+            "Active orders are defined as those with statuses PENDING or PAID.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Boolean indicating if the product has active orders"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "Product not found"
+                    )
+            }
+    )
+    public ResponseEntity<Boolean> hasActiveOrders(@PathVariable String code) {
+        return ResponseEntity.ok(productService.hasProductActiveOrders(code));
+    }
+
+    @GetMapping("/{code}/has-finished-orders")
+    @Operation(summary = "Check if product has finished orders", description = "Check if a product has any finished orders. " +
+            "Finished orders are defined as those with statuses CANCELED or EXPIRED.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Boolean indicating if the product has finished orders"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "Product not found"
+                    )
+            }
+    )
+    public ResponseEntity<Boolean> hasFinishedOrders(@PathVariable String code) {
+        return ResponseEntity.ok(productService.hasProductFinishedOrders(code));
     }
 
 }

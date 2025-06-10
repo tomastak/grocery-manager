@@ -28,7 +28,6 @@ public class ErrorTO {
     /**
      * Detailed error message.
      */
-    @NonNull
     private String message;
 
     /**

@@ -37,7 +37,7 @@ scenarios:
           }
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         extract-jsonpath:
           code: '$.code'
           name: '$.name'
@@ -47,7 +47,7 @@ scenarios:
         label: get_product
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         assert-jsonpath:
           - jsonpath: '$.code'
             expected-value: ${code}
@@ -68,7 +68,7 @@ scenarios:
           }
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         extract-jsonpath:
           code: '$.code'
           name: '$.name'
@@ -78,7 +78,7 @@ scenarios:
         label: get_product
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         assert-jsonpath:
           - jsonpath: '$.code'
             expected-value: ${code}
@@ -93,12 +93,12 @@ scenarios:
         method: DELETE
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
       - url: http://localhost:8080/api/v1/products/${code}
         label: get_deleted_product_fails
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         assert:
           - contains:
             - 404
@@ -120,7 +120,7 @@ scenarios:
           }
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         extract-jsonpath:
           product_code: '$.code'
       - url: http://localhost:8080/api/v1/orders
@@ -137,7 +137,7 @@ scenarios:
           }
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         assert-jsonpath:
           - jsonpath: '$.status'
             expected-value: PENDING
@@ -148,7 +148,7 @@ scenarios:
         method: POST
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         assert-jsonpath:
           - jsonpath: '$.status'
             expected-value: PAID
@@ -168,7 +168,7 @@ scenarios:
           }
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         extract-jsonpath:
           product_code: '$.code'
       - url: http://localhost:8080/api/v1/orders
@@ -185,7 +185,7 @@ scenarios:
           }
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         assert-jsonpath:
           - jsonpath: '$.status'
             expected-value: PENDING
@@ -196,7 +196,7 @@ scenarios:
         method: POST
         headers:
           Content-Type: application/json
-          Authorization: Basic R01fVXNlcjpHTV9Vc2Vy
+          Authorization: Basic YWRtaW46YWRtaW4=
         assert-jsonpath:
           - jsonpath: '$.status'
             expected-value: CANCELED

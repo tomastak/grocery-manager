@@ -33,6 +33,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductService implements IProductService {
 
+    public static final List<OrderStatus> ACTIVE_ORDER_STATUSES = Arrays.asList(OrderStatus.PENDING, OrderStatus.PAID);
+    public static final List<OrderStatus> FINISHED_ORDER_STATUSES = Arrays.asList(OrderStatus.CANCELED, OrderStatus.EXPIRED);
     private final IProductRepository productRepository;
     private final IOrderRepository orderRepository;
     private final IProductMapper productMapper;
@@ -96,6 +98,24 @@ public class ProductService implements IProductService {
         return productMapper.toProductTO(product);
     }
 
+    @Override
+    public boolean hasProductActiveOrders(String code) {
+        Assert.hasText(code, "Product code must not be empty");
+        if (!productRepository.existsByCode(code)) {
+            throw new ProductNotFoundException("Product not found with code: " + code);
+        }
+        return orderRepository.existsByProductCodeAndStatusIn(code, ACTIVE_ORDER_STATUSES);
+    }
+
+    @Override
+    public boolean hasProductFinishedOrders(String code) {
+        Assert.hasText(code, "Product code must not be empty");
+        if (!productRepository.existsByCode(code)) {
+            throw new ProductNotFoundException("Product not found with code: " + code);
+        }
+        return orderRepository.existsByProductCodeAndStatusIn(code, FINISHED_ORDER_STATUSES);
+    }
+
     @CacheEvict(value = "product", key = "#code")
     @Override
     public void deleteProduct(String code) throws ProductNotFoundException, ProductDeletionException {
@@ -105,15 +125,13 @@ public class ProductService implements IProductService {
             throw new ProductNotFoundException("Product not found with code: " + code);
         }
 
-        boolean hasActiveOrders = orderRepository.existsByProductCodeAndStatusIn(code,
-                Arrays.asList(OrderStatus.PENDING, OrderStatus.PAID));
+        boolean hasActiveOrders = orderRepository.existsByProductCodeAndStatusIn(code,ACTIVE_ORDER_STATUSES);
 
         if (hasActiveOrders) {
             throw new ProductDeletionException("Cannot delete product " + code + " with active orders");
         }
 
-        boolean hasFinishedOrders = orderRepository.existsByProductCodeAndStatusIn(code,
-                Arrays.asList(OrderStatus.CANCELED, OrderStatus.EXPIRED));
+        boolean hasFinishedOrders = orderRepository.existsByProductCodeAndStatusIn(code, FINISHED_ORDER_STATUSES);
 
         if (hasFinishedOrders) {
             productRepository.archiveByCode(code);

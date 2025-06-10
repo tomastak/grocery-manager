@@ -56,6 +56,7 @@ public class OrderController {
                     )
             }
     )
+    @Validated(View.Create.class)
     public ResponseEntity<OrderTO> createOrder(@JsonView(View.Create.class) @Valid @RequestBody OrderTO orderTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderService.createOrder(orderTO));

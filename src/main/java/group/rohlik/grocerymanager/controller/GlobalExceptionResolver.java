@@ -2,6 +2,7 @@ package group.rohlik.grocerymanager.controller;
 
 import group.rohlik.grocerymanager.dto.ErrorTO;
 import group.rohlik.grocerymanager.exception.*;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;
@@ -49,6 +50,23 @@ public class GlobalExceptionResolver extends DefaultHandlerExceptionResolver {
             var fieldName = ((FieldError) error).getField();
             var errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
+        });
+        return ErrorTO.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Validation failed")
+                .message("Invalid input parameters")
+                .data(errors)
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ErrorTO handleConstraintViolationException(ConstraintViolationException ex) {
+        final Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation -> {
+            var propertyPath = violation.getPropertyPath().toString();
+            var errorMessage = violation.getMessage();
+            errors.put(propertyPath, errorMessage);
         });
         return ErrorTO.builder()
                 .status(HttpStatus.BAD_REQUEST.value())

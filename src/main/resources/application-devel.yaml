@@ -1,0 +1,25 @@
+grocery-manager:
+  schedule:
+    order:
+      expire:
+        # Cron expression for scheduling the order expiration job
+        cron: "0 * * * * ?" # Every minute
+        # Expire orders that have not been paid within time
+        threshold: 30s
+        # Bottom threshold for limiting the query
+        bottom-threshold: 4h
+        # Maximum number of orders to expire in a single job run
+        max-size: 10
+        # Batch size for updating orders in the database
+        batch-update-size: 2
+spring:
+  liquibase:
+    contexts: devel
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+logging:
+  level:
+    org.hibernate: WARN
+    org.zalando.logbook: TRACE

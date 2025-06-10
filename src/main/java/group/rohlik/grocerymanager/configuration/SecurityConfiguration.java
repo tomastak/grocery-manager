@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,7 +24,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
@@ -34,20 +39,6 @@ import static org.springframework.security.web.util.matcher.RegexRequestMatcher.
 @Slf4j
 public class SecurityConfiguration {
 
-//    @Configuration
-//    @ConditionalOnProperty(prefix = "spring.security", value = "provider", havingValue = "none")
-//    public static class NoAuthenticationWebSecurityConfigurerAdapter {
-//        @Bean
-//        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//            log.warn("NO SECURITY PROVIDER");
-//            return http
-//                    .authorizeHttpRequests(auth -> auth
-//                            .anyRequest().permitAll()
-//                    )
-//                    .csrf(AbstractHttpConfigurer::disable).build();
-//        }
-//    }
-
     @Configuration
     @ConditionalOnProperty(prefix = "spring.security", value = "provider", havingValue = "basic")
     @RequiredArgsConstructor
@@ -56,9 +47,10 @@ public class SecurityConfiguration {
         private final SecurityProperties securityProperties;
 
         @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
+        public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService,
+                                                       CorsConfigurationSource corsConfigurationSource) throws Exception {
             log.info("Custom security provider: Basic");
-            configureWebSecurityConfigurerAdapter(http);
+            configureWebSecurityConfigurerAdapter(http, corsConfigurationSource);
             http.userDetailsService(userDetailsService);
             return http.build();
         }
@@ -89,7 +81,8 @@ public class SecurityConfiguration {
         }
     }
 
-    private static void configureWebSecurityConfigurerAdapter(HttpSecurity http) throws Exception {
+    private static void configureWebSecurityConfigurerAdapter(final HttpSecurity http,
+                                                              final CorsConfigurationSource corsSource) throws Exception {
         http
                 .headers(headersConfigurer -> headersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(auth -> auth
@@ -109,13 +102,31 @@ public class SecurityConfiguration {
                                 antMatcher("/error")).permitAll()
                         .requestMatchers(regexMatcher("/management/health(?:/liveness)?(?:/readiness)?")).permitAll()
                         .requestMatchers(antMatcher("/management/**")).hasAuthority("GM_ADMIN")
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().hasAuthority("GM_USER")
                 )
                 .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers(new MediaTypeRequestMatcher(MediaType.APPLICATION_JSON,
                         new MediaType("application", "hal+json"))))
+                .cors(cors -> cors.configurationSource(corsSource))
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .requestCache(RequestCacheConfigurer::disable);
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        var configuration = new CorsConfiguration();
+        configuration.addAllowedOriginPattern(CorsConfiguration.ALL);
+        configuration.setAllowedMethods(Arrays.asList(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(),
+                HttpMethod.DELETE.name(),HttpMethod.PATCH.name(), HttpMethod.OPTIONS.name()));
+        configuration.addAllowedHeader(CorsConfiguration.ALL);
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        var source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+
 
 }

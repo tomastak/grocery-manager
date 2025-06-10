@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import group.rohlik.grocerymanager.model.OrderStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +20,9 @@ import java.util.UUID;
  * @author Tomas Kramec
  */
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonView(View.Read.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderTO {

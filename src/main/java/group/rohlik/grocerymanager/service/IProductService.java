@@ -54,6 +54,26 @@ public interface IProductService {
     ProductTO updateProduct(ProductTO product) throws ProductNotFoundException;
 
     /**
+     * Checks if a product has active orders. Active orders are defined as those with statuses
+     * {@link group.rohlik.grocerymanager.model.OrderStatus#PENDING} or
+     * {@link group.rohlik.grocerymanager.model.OrderStatus#PAID}.
+     *
+     * @param code the unique identifier of the product
+     * @return true if the product has active orders, false otherwise
+     */
+    boolean hasProductActiveOrders(String code);
+
+    /**
+     * Checks if a product has finished orders. Finished orders are defined as those with statuses
+     * {@link group.rohlik.grocerymanager.model.OrderStatus#CANCELED} or
+     * {@link group.rohlik.grocerymanager.model.OrderStatus#EXPIRED}.
+     *
+     * @param code the unique identifier of the product
+     * @return true if the product has finished orders, false otherwise
+     */
+    boolean hasProductFinishedOrders(String code);
+
+    /**
      * Deletes a product by its unique code.
      * If the product has active orders, it cannot be deleted and will be archived instead.
      * If the product has finished orders (canceled or expired), it will be archived.

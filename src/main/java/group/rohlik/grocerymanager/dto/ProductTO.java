@@ -22,20 +22,23 @@ public class ProductTO {
     @JsonView(View.Create.class)
     private String code;
 
-    @NotBlank(message = "Product name is required")
-    @Size(min = 1, max = 255, message = "Product name must be between 1 and 255 characters")
+    @NotBlank(message = "Product name is required", groups = View.Update.class)
+    @Size(min = 1, max = 255, message = "Product name must be between 1 and 255 characters", groups = View.Update.class)
     @JsonView(View.Update.class)
     private String name;
 
-    @NotNull(message = "Stock quantity is required")
-    @Min(value = 0, message = "Stock quantity must be non-negative")
+    @NotNull(message = "Stock quantity is required", groups = View.Update.class)
+    @Min(value = 0, message = "Stock quantity must be non-negative", groups = View.Update.class)
     @JsonView(View.Update.class)
     private Integer stockQuantity;
 
-    @NotNull(message = "Price per unit is required")
-    @DecimalMin(value = "0.01", message = "Price per unit must be at least 0.01")
-    @Digits(integer = 15, fraction = 2, message = "Price per unit format is invalid")
+    @NotNull(message = "Price per unit is required", groups = View.Update.class)
+    @DecimalMin(value = "0.01", message = "Price per unit must be at least 0.01", groups = View.Update.class)
+    @Digits(integer = 15, fraction = 2, message = "Price per unit format is invalid", groups = View.Update.class)
     @JsonView(View.Update.class)
     private BigDecimal pricePerUnit;
+
+    @JsonView(View.Read.class)
+    private boolean archived = false;
 
 }
