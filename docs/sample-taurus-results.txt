@@ -1,0 +1,58 @@
+21:20:29 INFO: Test duration: 0:01:32
+21:20:29 INFO: Samples count: 4404, 0.00% failures
+21:20:29 INFO: Average times: total 0.388, latency 0.345, connect 0.000
+21:20:29 INFO: Percentiles:
++---------------+---------------+
+| Percentile, % | Resp. Time, s |
++---------------+---------------+
+|           0.0 |         0.074 |
+|          50.0 |         0.302 |
+|          90.0 |         0.718 |
+|          95.0 |         0.778 |
+|          99.0 |         0.866 |
+|          99.9 |         0.931 |
+|         100.0 |         1.015 |
++---------------+---------------+
+21:20:29 INFO: Request label stats:
++---------------------------+--------+---------+--------+-------+
+| label                     | status |    succ | avg_rt | error |
++---------------------------+--------+---------+--------+-------+
+| cancel_order              |   OK   | 100.00% |  0.267 |       |
+| create_order              |   OK   | 100.00% |  0.248 |       |
+| create_product            |   OK   | 100.00% |  0.572 |       |
+| create_product_for_order  |   OK   | 100.00% |  0.242 |       |
+| delete_product            |   OK   | 100.00% |  0.617 |       |
+| get_deleted_product_fails |   OK   | 100.00% |  0.608 |       |
+| get_product               |   OK   | 100.00% |  0.589 |       |
+| pay_order                 |   OK   | 100.00% |  0.227 |       |
+| update_product            |   OK   | 100.00% |  0.583 |       |
++---------------------------+--------+---------+--------+-------+
+21:20:29 INFO: Test duration: 0:01:32
+21:20:29 INFO: Samples count: 4404, 0.00% failures
+21:20:29 INFO: Average times: total 0.388, latency 0.345, connect 0.000
+21:20:29 INFO: Percentiles:
++---------------+---------------+
+| Percentile, % | Resp. Time, s |
++---------------+---------------+
+|           0.0 |         0.074 |
+|          50.0 |         0.302 |
+|          90.0 |         0.718 |
+|          95.0 |         0.778 |
+|          99.0 |         0.866 |
+|          99.9 |         0.931 |
+|         100.0 |         1.015 |
++---------------+---------------+
+21:20:29 INFO: Request label stats:
++---------------------------+--------+---------+--------+-------+
+| label                     | status |    succ | avg_rt | error |
++---------------------------+--------+---------+--------+-------+
+| cancel_order              |   OK   | 100.00% |  0.267 |       |
+| create_order              |   OK   | 100.00% |  0.248 |       |
+| create_product            |   OK   | 100.00% |  0.572 |       |
+| create_product_for_order  |   OK   | 100.00% |  0.242 |       |
+| delete_product            |   OK   | 100.00% |  0.617 |       |
+| get_deleted_product_fails |   OK   | 100.00% |  0.608 |       |
+| get_product               |   OK   | 100.00% |  0.589 |       |
+| pay_order                 |   OK   | 100.00% |  0.227 |       |
+| update_product            |   OK   | 100.00% |  0.583 |       |
++---------------------------+--------+---------+--------+-------+

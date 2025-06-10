@@ -14,6 +14,7 @@ The application follows a layered architecture:
 - **Configuration Layer**: Centralizes configuration for security, caching, retry policies, OpenAPI documentation, and scheduling.
 
 ### Key Technologies
+- **Java 21**: Modern language features and performance improvements.
 - **Spring Boot 3.3**: Rapid application development and dependency management.
 - **Spring Data JPA**: ORM and repository abstraction.
 - **Spring Security**: Basic authentication with in-memory user store.
@@ -95,5 +96,9 @@ cd src/test/taurus
 # Run Taurus with the provided configuration
 docker run --network host -it --rm -v "$(pwd)":/bzt-configs -v "$(pwd)"/artifacts:/tmp/artifacts blazemeter/taurus -sequential simple.yaml
 ```
+
+Results
+![Taurus running tests](docs/images/taurus_test_run.png)
+![Taurus Test report](docs/sample-taurus-results.txt)
 
 See `src/test/taurus/README.md` for more details.
