@@ -99,6 +99,6 @@ docker run --network host -it --rm -v "$(pwd)":/bzt-configs -v "$(pwd)"/artifact
 
 Results
 ![Taurus running tests](docs/images/taurus_test_run.png)
-![Taurus Test report](docs/sample-taurus-results.txt)
+[Sample Taurus Results](docs/sample-taurus-results.txt)
 
 See `src/test/taurus/README.md` for more details.
