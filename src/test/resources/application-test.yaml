@@ -3,3 +3,4 @@ spring:
     allow-bean-definition-overriding: true
   liquibase:
     dropFirst: true
+    enabled: true
